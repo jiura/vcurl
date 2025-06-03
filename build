@@ -1,0 +1,4 @@
+#!/bin/bash
+mkdir -p bin
+gcc -std=c99 -o bin/vcurl -I./include -L./lib main.c -lraylib -lm -ldl -pthread -lX11 -lGL
+echo "Compiled vcurl succesfully to bin/ directory!"

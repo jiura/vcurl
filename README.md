@@ -1,1 +1,1 @@
-Simple GUI application I made with Fyne so I could test requests with instead of using curl.
+Simple GUI application using Clay + Raylib to test HTTP requests with instead of using curl all the time.
