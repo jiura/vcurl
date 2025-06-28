@@ -1,3 +1,4 @@
+#include <string.h>
 #define HELPERS_IMPLEMENTATION
 #include "helpers.h"
 
@@ -7,6 +8,9 @@
 #include "clay/renderers/raylib/clay_renderer_raylib.c"
 
 #include "layout.c"
+
+#define INPUT_MIN_CAP 10
+#define INPUT_GROWTH_STEP 10
 
 void HandleClayErrors(Clay_ErrorData data) {
 	printf("%s", data.errorText.chars);
@@ -42,7 +46,20 @@ int main(void) {
 	Layout_Data data = Layout_NewData();
 
 	// FIXME: Delete test lines
-	Header headers_test[2] = { { .key = "Header1", .val = "Value1" }, { .key = "Header2", .val = "Value2" } };
+	Header headers_test[2] = {
+		{
+			.key = malloc(INPUT_MIN_CAP),
+			.val = malloc(INPUT_MIN_CAP)
+		},
+		{
+			.key = malloc(INPUT_MIN_CAP),
+			.val = malloc(INPUT_MIN_CAP)
+		}
+	};
+	strcpy(headers_test[0].key, "Header1");
+	strcpy(headers_test[0].val, "Value1");
+	strcpy(headers_test[1].key, "Header2");
+	strcpy(headers_test[1].val, "Value2");
 	dinAppend(data.headers, headers_test, 2);
 
 	/* MAIN LOOP */
@@ -67,6 +84,43 @@ int main(void) {
 		);
 
 		Clay_RenderCommandArray render_commands = CreateLayout(&data);
+
+		/* HANDLE KEY PRESSES */
+		if (data.selected_input_box.id != 0) {
+			int key = GetCharPressed();
+			int header_index = data.selected_input_box.offset - 1;
+
+			if (key != 0) {
+				char** target = strstr(data.selected_input_box.stringId.chars, "Key")
+					? &((Header*)data.headers->vals)[header_index].key
+					: &((Header*)data.headers->vals)[header_index].val;
+
+				if ((key >= 32) && (key <= 125)) {
+					size_t target_len = strlen(*target);
+
+					if (target_len % 10 == 9)
+						*target = realloc(*target, target_len + INPUT_GROWTH_STEP);
+
+					strncat(*target, (char[]){(char)key}, 1);
+				}
+			} else if (IsKeyDown(KEY_BACKSPACE)) {
+				char** target = strstr(data.selected_input_box.stringId.chars, "Key")
+					? &((Header*)data.headers->vals)[header_index].key
+					: &((Header*)data.headers->vals)[header_index].val;
+
+				size_t target_len = strlen(*target);
+				if (target_len > 0) {
+					(*target)[target_len - 1] = '\0';
+
+					if (target_len % 10 == 9) {
+						*target = realloc(*target, target_len + 1);
+					}
+				}
+
+				// NOTE: Wait before deleting more so humans can keep up
+				WaitTime(0.05);
+			}
+		}
 
 		/* RENDER */
 		BeginDrawing();

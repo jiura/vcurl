@@ -39,7 +39,6 @@ void dinFree(DinArray* arr);
 
 /* DYNAMIC ARRAY END */
 
-
 #ifdef HELPERS_IMPLEMENTATION
 /* DYNAMIC ARRAY START */
 DinArray* dinNew(size_t cap, size_t elem_size) {

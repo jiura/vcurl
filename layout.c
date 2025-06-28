@@ -13,6 +13,7 @@ typedef struct {
 
 typedef struct {
 	DinArray* headers;
+	Clay_ElementId selected_input_box;
 } Layout_Data;
 
 Layout_Data Layout_NewData() {
@@ -23,6 +24,8 @@ Layout_Data Layout_NewData() {
 		fprintf(stderr, "Fatal error: Failed to allocate memory for layout data. Shutting down.");
 		exit(EXIT_FAILURE);
 	}
+
+	data.selected_input_box = (Clay_ElementId){0, 0, 0, 0};
 
 	return data;
 }
@@ -49,6 +52,15 @@ void RenderClayDropdownMenuItem(Clay_String text) {
 	}
 }
 
+void HandleInputBoxInteraction(Clay_ElementId element_id, 
+							   Clay_PointerData pointer_data,
+							   intptr_t user_data) {
+	if (pointer_data.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME) {
+		Layout_Data* data = (Layout_Data *)user_data;
+		data->selected_input_box = element_id;	
+	}
+}
+
 Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 	Clay_BeginLayout();
 
@@ -69,7 +81,7 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 			.childGap = 16
 		}
 	}) { // Child elements go inside braces
-		CLAY({.id = CLAY_ID("HeaderBar"),
+		/*CLAY({.id = CLAY_ID("HeaderBar"),
 			  .layout = {.sizing = {.height = CLAY_SIZING_FIXED(60),
 									.width = CLAY_SIZING_GROW(0)},
 						 .padding = {16, 16, 0, 0},
@@ -95,22 +107,24 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 						Clay_GetElementId(CLAY_STRING("FileMenu")));
 
 				if (file_menu_visible) {
-					CLAY({.id = CLAY_ID("FileMenu"),
-						  .floating =
-							  {
-								  .attachTo = CLAY_ATTACH_TO_PARENT,
-								  .attachPoints =
-									  {.parent = CLAY_ATTACH_POINT_LEFT_BOTTOM},
-							  },
-						  .layout = {.padding = {0, 0, 8, 8}}}) {
-						CLAY({.layout =
-								  {
-									  .layoutDirection = CLAY_TOP_TO_BOTTOM,
-									  .sizing = {.width =
-													 CLAY_SIZING_FIXED(200)},
-								  },
-							  .backgroundColor = {40, 40, 40, 255},
-							  .cornerRadius = CLAY_CORNER_RADIUS(8)}) {
+					CLAY({
+						.id = CLAY_ID("FileMenu"),
+						.floating = {
+							.attachTo = CLAY_ATTACH_TO_PARENT,
+							.attachPoints = {.parent = CLAY_ATTACH_POINT_LEFT_BOTTOM},
+						},
+						.layout = {.padding = {0, 0, 8, 8}}
+					}) {
+						CLAY({
+							.layout = {
+								.layoutDirection = CLAY_TOP_TO_BOTTOM,
+								.sizing = {
+									.width = CLAY_SIZING_FIXED(200)
+								}
+							},
+							.backgroundColor = {40, 40, 40, 255},
+							.cornerRadius = CLAY_CORNER_RADIUS(8)
+						}) {
 							// Render dropdown items here
 							RenderClayDropdownMenuItem(CLAY_STRING("New"));
 							RenderClayDropdownMenuItem(CLAY_STRING("Open"));
@@ -125,12 +139,12 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 			RenderClayHeaderButton(CLAY_STRING("Upload"));
 			RenderClayHeaderButton(CLAY_STRING("Media"));
 			RenderClayHeaderButton(CLAY_STRING("Support"));
-		}
+		}*/
 
 		CLAY({
 			.id = CLAY_ID("MainContainer"),
 			.layout = {
-				.layoutDirection = CLAY_LEFT_TO_RIGHT,
+				.layoutDirection = CLAY_TOP_TO_BOTTOM,
 				.sizing = layout_expand,
 				.childGap = 16
 			}
@@ -217,9 +231,10 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 										.width = CLAY_SIZING_GROW(0),
 										.height = CLAY_SIZING_FIXED(50)
 									}
-								}
+								},
 							}) {
 
+								Clay_OnHover(HandleInputBoxInteraction, (intptr_t)data);
 								Clay_String header_key = (Clay_String){
 									.isStaticallyAllocated = 0,
 									.length = strlen(((Header*)data->headers->vals)[i].key),
@@ -253,6 +268,7 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 								}
 							}) {
 
+								Clay_OnHover(HandleInputBoxInteraction, (intptr_t)data);
 								Clay_String header_value = (Clay_String){
 									.isStaticallyAllocated = 0,
 									.length = strlen(((Header*)data->headers->vals)[i].val),
