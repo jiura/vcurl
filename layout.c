@@ -7,7 +7,7 @@ const int FONT_ID_BODY_16 = 0;
 
 typedef struct {
 	char* key;
-	char* value;
+	char* val;
 } Header;
 
 typedef struct {
@@ -152,7 +152,10 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 					.layout = {
 						.layoutDirection = CLAY_LEFT_TO_RIGHT,
 						.childGap = 16,
-						.sizing = layout_expand
+						.sizing = {
+							.width = CLAY_SIZING_GROW(0)
+//							.height = CLAY_SIZING_FIT(0)
+						}
 					}
 				}) {
 
@@ -186,10 +189,12 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 					.layout = {
 						.layoutDirection = CLAY_TOP_TO_BOTTOM,
 						.childGap = 16,
-						.sizing = layout_expand
+						.sizing = {
+							.width = CLAY_SIZING_GROW(0)
+						}
 					}
 				}) {
-					for (size_t i; i < data->headers->len; ++i) {
+					for (size_t i = 0; i < data->headers->len; ++i) {
 
 						CLAY({
 							.layout = {
@@ -200,6 +205,7 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 						}) {
 
 							CLAY({
+								.id = CLAY_IDI("HeaderKey", i+1),
 								.backgroundColor = outer_container_bg_color,
 								.cornerRadius = CLAY_CORNER_RADIUS(5),
 								.layout = {
@@ -211,6 +217,7 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 							}) {}
 
 							CLAY({
+								.id = CLAY_IDI("HeaderVal", i+1),
 								.backgroundColor = outer_container_bg_color,
 								.cornerRadius = CLAY_CORNER_RADIUS(5),
 								.layout = {
@@ -219,7 +226,19 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 										.height = CLAY_SIZING_FIXED(50)
 									}
 								}
-							}) {}
+							}) {
+								CLAY_TEXT(
+									CLAY_STRING("test"),
+									CLAY_TEXT_CONFIG({
+										.fontId = FONT_ID_BODY_16,
+										.fontSize = 30,
+										.textColor = {255, 255, 255, 255},
+										.textAlignment = CLAY_TEXT_ALIGN_CENTER,
+										.letterSpacing = 10,
+										.lineHeight = 50
+									})
+								);
+							}
 
 							CLAY({
 								.backgroundColor = outer_container_bg_color,
@@ -230,19 +249,35 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 										.height = CLAY_SIZING_FIXED(50)
 									}
 								}
-							}) {}
+							}) {
+
+								CLAY_TEXT(
+									CLAY_STRING(" X"),
+									CLAY_TEXT_CONFIG({
+										.fontId = FONT_ID_BODY_16,
+										.fontSize = 30,
+										.textColor = {255, 255, 255, 255},
+										.textAlignment = CLAY_TEXT_ALIGN_CENTER,
+										.letterSpacing = 10,
+										.lineHeight = 50
+									})
+								);
+							}
 						}
 					}
 
 					CLAY({
 						.layout = {
 							.layoutDirection = CLAY_LEFT_TO_RIGHT,
+							.childAlignment = {
+								.x = CLAY_ALIGN_X_RIGHT
+							},
 							.sizing = layout_expand
 						}
 					}) {
 
 						CLAY({
-							.id = CLAY_ID("HeaderAddNew"),
+							.id = CLAY_ID("HeaderAddNewBtn"),
 							.backgroundColor = outer_container_bg_color,
 							.cornerRadius = CLAY_CORNER_RADIUS(5),
 							.layout = {
@@ -253,6 +288,18 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 							}
 						}) {}
 					}
+
+					CLAY({
+						.id = CLAY_ID("BodyInput"),
+						.backgroundColor = outer_container_bg_color,
+						.cornerRadius = CLAY_CORNER_RADIUS(5),
+						.layout = {
+							.sizing = {
+								.width = CLAY_SIZING_PERCENT(0.45f),
+								.height = CLAY_SIZING_FIXED(300)
+							}
+						}
+					}) {}
 				}
 			}
 

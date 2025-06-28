@@ -17,6 +17,7 @@ void HandleClayErrors(Clay_ErrorData data) {
 }
 
 int main(void) {
+	/* CLAY INIT */
 	Clay_Raylib_Initialize(800, 600, "vcurl", FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
 	
 	uint64_t clay_required_memory = Clay_MinMemorySize();
@@ -34,8 +35,17 @@ int main(void) {
 	SetTextureFilter(fonts[FONT_ID_BODY_16].texture, TEXTURE_FILTER_BILINEAR);
 	Clay_SetMeasureTextFunction(Raylib_MeasureText, fonts);
 
+
+	/* OTHER INIT */
+	SetTargetFPS(60);
+
 	Layout_Data data = Layout_NewData();
 
+	// FIXME: Delete test lines
+	Header headers_test[2] = { { .key = "Header1", .val = "Value1" }, { .key = "Header2", .val = "Value2" } };
+	dinAppend(data.headers, headers_test, 2);
+
+	/* MAIN LOOP */
 	while (!WindowShouldClose()) {
 		Clay_SetLayoutDimensions((Clay_Dimensions) {
 			.width = GetScreenWidth(),
@@ -58,6 +68,7 @@ int main(void) {
 
 		Clay_RenderCommandArray render_commands = CreateLayout(&data);
 
+		/* RENDER */
 		BeginDrawing();
 		ClearBackground(BLACK);
 		Clay_Raylib_Render(render_commands, fonts);
@@ -65,4 +76,6 @@ int main(void) {
 	}
 	
 	Clay_Raylib_Close();
+
+	return 0;
 }

@@ -52,6 +52,7 @@ DinArray* dinNew(size_t cap, size_t elem_size) {
 
 	arr->len = 0;
 	arr->cap = cap;
+	arr->elem_size = elem_size;
 
 	arr->vals = malloc(cap * elem_size);
 	if (!arr->vals) {
@@ -66,11 +67,15 @@ DinArray* dinNew(size_t cap, size_t elem_size) {
 bool dinAppend(DinArray* arr, void* vals, size_t num_elems) {
 	size_t og_cap = arr->cap;
 
+	if (num_elems == 0) {
+		return true;
+	}
+
 	while (arr->len + num_elems > arr->cap) {
 		arr->cap *= 2;
 	}
 
-	void *tmp = realloc(arr->vals, arr->cap * sizeof(*(arr->vals)));
+	void *tmp = realloc(arr->vals, arr->cap * arr->elem_size);
 	if (!tmp) {
 		return false;
 	}
