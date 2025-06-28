@@ -2,6 +2,7 @@
 #include "clay/clay.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 const int FONT_ID_BODY_16 = 0;
 
@@ -209,32 +210,62 @@ Clay_RenderCommandArray CreateLayout(Layout_Data *data) {
 								.backgroundColor = outer_container_bg_color,
 								.cornerRadius = CLAY_CORNER_RADIUS(5),
 								.layout = {
-									.sizing = {
-										.width = CLAY_SIZING_GROW(0),
-										.height = CLAY_SIZING_FIXED(50)
-									}
-								}
-							}) {}
-
-							CLAY({
-								.id = CLAY_IDI("HeaderVal", i+1),
-								.backgroundColor = outer_container_bg_color,
-								.cornerRadius = CLAY_CORNER_RADIUS(5),
-								.layout = {
+									.padding = {
+										.left = 10
+									},
 									.sizing = {
 										.width = CLAY_SIZING_GROW(0),
 										.height = CLAY_SIZING_FIXED(50)
 									}
 								}
 							}) {
+
+								Clay_String header_key = (Clay_String){
+									.isStaticallyAllocated = 0,
+									.length = strlen(((Header*)data->headers->vals)[i].key),
+									.chars = ((Header*)data->headers->vals)[i].key
+								};
+
 								CLAY_TEXT(
-									CLAY_STRING("test"),
+									header_key,
 									CLAY_TEXT_CONFIG({
 										.fontId = FONT_ID_BODY_16,
-										.fontSize = 30,
+										.fontSize = 26,
 										.textColor = {255, 255, 255, 255},
-										.textAlignment = CLAY_TEXT_ALIGN_CENTER,
-										.letterSpacing = 10,
+										.textAlignment = CLAY_TEXT_ALIGN_LEFT,
+										.lineHeight = 50
+									})
+								);
+							}
+
+							CLAY({
+								.id = CLAY_IDI("HeaderVal", i+1),
+								.backgroundColor = outer_container_bg_color,
+								.cornerRadius = CLAY_CORNER_RADIUS(5),
+								.layout = {
+		  							.padding = {
+										.left = 10
+									},
+									.sizing = {
+										.width = CLAY_SIZING_GROW(0),
+										.height = CLAY_SIZING_FIXED(50)
+									}
+								}
+							}) {
+
+								Clay_String header_value = (Clay_String){
+									.isStaticallyAllocated = 0,
+									.length = strlen(((Header*)data->headers->vals)[i].val),
+									.chars = ((Header*)data->headers->vals)[i].val
+								};
+
+								CLAY_TEXT(
+									header_value,
+									CLAY_TEXT_CONFIG({
+										.fontId = FONT_ID_BODY_16,
+										.fontSize = 26,
+										.textColor = {255, 255, 255, 255},
+										.textAlignment = CLAY_TEXT_ALIGN_LEFT,
 										.lineHeight = 50
 									})
 								);
